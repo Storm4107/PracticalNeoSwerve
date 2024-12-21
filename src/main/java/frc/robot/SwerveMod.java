@@ -74,7 +74,6 @@ public class SwerveMod{
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {
         desiredState = CTREModuleState.optimize(desiredState, getState().angle); 
-    
         setAngle(desiredState);
         setSpeed(desiredState, isOpenLoop);
 
@@ -99,7 +98,6 @@ public class SwerveMod{
     }
 
     private void setAngle(SwerveModuleState desiredState) {
-       // Rotation2d angle = (Math.abs(desiredState.speedMetersPerSecond) <= (Constants.Swerve.maxSpeed * 0.01)) ? lastAngle : desiredState.angle;
        if(Math.abs(desiredState.speedMetersPerSecond) <= (Constants.Swerve.maxSpeed * 0.01))
        {
         mAngleMotor.stopMotor();
@@ -110,7 +108,6 @@ public class SwerveMod{
         SparkClosedLoopController controller = mAngleMotor.getClosedLoopController();
         
         controller.setReference(angle.getDegrees(), ControlType.kPosition, 0);
-        //lastAngle = angle;
     } 
 
     private Rotation2d getAngle(){

@@ -84,7 +84,7 @@ public final class Constants {
         public static final double driveKF = 0.0;
 
          /* Heading PID Values */
-        public static final double HeadingKP = 0.1;
+        public static final double HeadingKP = 0.5;
         public static final double HeadingKI = 0.0;
         public static final double HeadingKD = 0;
         public static final double HeadingTolerence = 0;

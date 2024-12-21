@@ -20,7 +20,7 @@ public final class HardwareConfigs {
        swerveAngleSparkConfig.idleMode(Constants.Swerve.angleNuetralMode);
 
        //Gear ratio and wrapping config
-       swerveAngleSparkConfig.encoder.positionConversionFactor(Constants.Swerve.angleGearRatio);
+       swerveAngleSparkConfig.encoder.positionConversionFactor(360/Constants.Swerve.angleGearRatio);
        swerveAngleSparkConfig.encoder.velocityConversionFactor(Constants.Swerve.angleGearRatio / 60);
        swerveAngleSparkConfig.closedLoop.positionWrappingEnabled(true);
 

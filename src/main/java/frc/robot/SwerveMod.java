@@ -5,7 +5,9 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.lib.util.swerveUtil.CTREModuleState;
 import frc.lib.util.swerveUtil.SwerveModuleConstants;
 
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -44,7 +46,7 @@ public class SwerveMod{
         this.angleOffset = moduleConstants.angleOffset;
         
          /* Angle Encoder Config */
-        angleEncoder = new CANcoder(moduleConstants.cancoderID);
+        angleEncoder = new CANcoder(moduleConstants.cancoderID, "rio");
 
         /* Angle Motor Config */
         mAngleMotor = new SparkMax(moduleConstants.angleMotorID, MotorType.kBrushless);
@@ -54,6 +56,7 @@ public class SwerveMod{
         mDriveMotor = new SparkMax(moduleConstants.driveMotorID,  MotorType.kBrushless);
         mDriveMotor.configure(hardwareConfigs.swerveDriveSparkConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         configEncoders();
+
     }
 
 
@@ -70,11 +73,12 @@ public class SwerveMod{
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {
-         
-        desiredState.optimize(getState().angle);
-        desiredState.cosineScale(getState().angle);
+        desiredState = CTREModuleState.optimize(desiredState, getState().angle); 
+    
         setAngle(desiredState);
         setSpeed(desiredState, isOpenLoop);
+
+        SmartDashboard.putNumber("Desired angle", desiredState.angle.getDegrees());
 
     }
 
@@ -95,17 +99,19 @@ public class SwerveMod{
     }
 
     private void setAngle(SwerveModuleState desiredState) {
-        if(Math.abs(desiredState.speedMetersPerSecond) <= (Constants.Swerve.maxSpeed * 0.01)) {
-            mAngleMotor.stopMotor();
-            return;
-        }
-        Rotation2d angle = desiredState.angle; 
-        //Prevent rotating module if speed is less then 1%. Prevents Jittering.
-        SparkClosedLoopController controller = mAngleMotor.getClosedLoopController();
-        double degReference = angle.getDegrees();
+       // Rotation2d angle = (Math.abs(desiredState.speedMetersPerSecond) <= (Constants.Swerve.maxSpeed * 0.01)) ? lastAngle : desiredState.angle;
+       if(Math.abs(desiredState.speedMetersPerSecond) <= (Constants.Swerve.maxSpeed * 0.01))
+       {
+        mAngleMotor.stopMotor();
+        return;
+       }
+       Rotation2d angle = desiredState.angle;
         
-        controller.setReference (degReference, ControlType.kPosition, 0);
-    }
+        SparkClosedLoopController controller = mAngleMotor.getClosedLoopController();
+        
+        controller.setReference(angle.getDegrees(), ControlType.kPosition, 0);
+        //lastAngle = angle;
+    } 
 
     private Rotation2d getAngle(){
         return Rotation2d.fromDegrees(relAngleEncoder.getPosition());
